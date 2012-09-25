@@ -60,18 +60,17 @@ def main():
 
   # Get the donor image
   path = os.getcwd()
-  img_filename = "%s/images/FacebookLondon_small.png" % path
+  img_filename = "%s/images/FacebookLondon.png" % path
   im = Image.open(img_filename)
+  im.thumbnail((384,384), Image.ANTIALIAS)
 
   # Go over it pixel by pixel and change the color to the closest match in our bricksList
   imageW = im.size[0]
   imageH = im.size[1]
 
   pixels = im.load()
-  #for y in range(0, imageH):
-  #  for x in range(0, imageW):
-  for y in range(100, 101):
-    for x in range(100, 101):
+  for y in range(0, imageH):
+    for x in range(0, imageW):
       rgb = pixels[x,y]
 
       best_match = find_best_match(rgb, bricksList)
