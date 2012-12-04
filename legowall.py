@@ -23,6 +23,9 @@ class BrickColor:
   def get_rgb(self):
     return (self.red, self.green, self.blue)
 
+  def get_name(self):
+    return self.name
+
 
 def find_best_match(sample_color, colors_list):
   # Given a sample colour, find the colour in the colour list
@@ -85,6 +88,13 @@ def get_colors(location):
    print "Could not find color list for " + location
    return None
 
+def add_to_shopping_list(shopping_list, rgb_color):
+  if rgb_color not in shopping_list:
+    shopping_list[rgb_color] = 0
+
+  shopping_list[rgb_color] = int(shopping_list[rgb_color])+1
+  
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("color_list", help="Where to get the list of colours from. Valid options are: 'lego', 'peerson'", default="peerson")
@@ -97,15 +107,18 @@ def main():
 
   # Get the donor image
   path = os.getcwd()
-  img_filename = "%s/images/FacebookLondon.png" % path
+  #img_filename = "%s/images/FacebookLondon.png" % path
+  img_filename = "%s/images/LondonLogo_small_whiteonly.png" % path
   im = Image.open(img_filename)
-  im.thumbnail((384,384), Image.ANTIALIAS)
+  im = im.convert('RGB')
+  #im.thumbnail((384,384), Image.ANTIALIAS)
 
   # Go over it pixel by pixel and change the color to the closest match in our bricksList
   imageW = im.size[0]
   imageH = im.size[1]
 
   pixels = im.load()
+  shopping_list = {}
   for y in range(0, imageH):
     for x in range(0, imageW):
       rgb = pixels[x,y]
@@ -113,8 +126,17 @@ def main():
       best_match = find_best_match(rgb, bricksList)
       pixels[x,y] = best_match.get_rgb()
 
+      # Update our brick list - at the moment this assumes 1x1 FIXME
+      add_to_shopping_list(shopping_list, best_match)
+
   file_name, ext = os.path.splitext(img_filename)
   im.save(file_name + "_new_colors.png", "PNG")
+
+  print "Shopping List:"
+  for key in shopping_list.keys():
+    (r,g,b) = key.get_rgb()
+    color = key.get_name() + "("+str(r)+","+str(g)+","+str(b)+")"
+    print(color + " " + str(shopping_list[key]) + " 1x1 blocks")
   
 
 if __name__ == '__main__':
